@@ -13,7 +13,7 @@ const winningCombinations = [
   board = document.getElementById("board"),
   hide = document.querySelector("#start");
 show = document.querySelector("#started");
-ai = document.querySelector("#singleplayer");
+singlePlayer = document.querySelector("#singleplayer");
 multiPlayer = document.querySelector("#multiplayer");
 (x = "X"), (o = "O"), (userMoves = []);
 let turn = x,
@@ -23,7 +23,7 @@ let turn = x,
 moves.forEach((move) => {
   move.addEventListener("click", makeMove);
 });
-ai.addEventListener("click", showBoard);
+singlePlayer.addEventListener("click", showBoard);
 multiPlayer.addEventListener("click", () => {
   aiMode = false;
   showBoard();
@@ -40,7 +40,9 @@ function makeMove(e) {
       return;
     }
     switchTurnTo(o);
-    if (aiMode) ai(e);
+    if (aiMode) {
+      ai(e);
+    }
   } else {
     target.innerText = o;
     target.classList.add(o, "disabled");
@@ -51,43 +53,9 @@ function makeMove(e) {
     switchTurnTo(x);
   }
 }
-
-function switchTurnTo(input) {
-  turn = input;
-  turnDiv.innerText = `${input}'s Turn`;
-}
-
-function checkForWin(CLASS) {
-  return winningCombinations.some((combination) => {
-    return combination.every((index) => {
-      return moves[index].classList.contains(CLASS);
-    });
-  });
-}
-
-function displayWinner(str, CLASS) {
-  let highlight = winningCombinations.find((combination) => {
-    return combination.every((index) => {
-      return moves[index].classList.contains(CLASS);
-    });
-  });
-  for (let i = 0; i < highlight.length; i++) {
-    moves[highlight[i]].classList.add("inverse-move");
-  }
-
-  setTimeout(() => {
-    let winnerDiv = document.querySelector(".winner"),
-      winnerText = document.querySelector(".winner p");
-    winnerText.innerText = str;
-    winnerDiv.classList.add("animated", "zoomIn");
-    winnerDiv.style.display = "grid";
-  }, 500);
-}
-
 function ai(e) {
   board.style.pointerEvents = "none";
   let lastMove = userMoves[userMoves.length - 1];
-  let aiMoves = Array.from(document.querySelectorAll(".O"));
   probably = winningCombinations.filter((combination) => {
     return combination.some((index, i) => {
       return lastMove === combination[i];
@@ -97,7 +65,6 @@ function ai(e) {
   switchTurnTo(x);
   board.style.pointerEvents = "all";
 }
-
 function makeChoice() {
   let possibleComb = winningCombinations.filter((combination) => {
     return combination.some((index, i) => {
@@ -124,12 +91,6 @@ function makeChoice() {
         moves[selectedMove].classList.add(o);
       }
     } else if (userMoves.length >= 2) {
-      // let selectedMove = winningCombinations.find((combination) => {
-      // //   return combination
-      // //     .sort()
-      // //     .join()
-      // //     .includes(userMoves.slice(-2).sort().join(""));
-      // // });
       let selectedMove = winningCombinations.find((combination) => {
         return (
           String(combination.join("")).indexOf(
@@ -139,17 +100,60 @@ function makeChoice() {
       });
       console.log(selectedMove);
       if (selectedMove === undefined) {
+        let selectedMove = moves[random(0, 8)];
+        if (selectedMove.classList.contains(x)) {
+          chooseAiMove();
+        } else {
+          selectedMove.classList.add(o, "disabled");
+          selectedMove.innerText = o;
+        }
       } else {
         if (moves[selectedMove[2]].classList.contains(x)) {
           moves[selectedMove[0]].innerText = o;
-          moves[selectedMove[0]].classList.add(o);
+          moves[selectedMove[0]].classList.add(o, "disabled");
         } else {
           moves[selectedMove[2]].innerText = o;
-          moves[selectedMove[2]].classList.add(o);
+          moves[selectedMove[2]].classList.add(o, "disabled");
         }
       }
     }
   }
+}
+
+function switchTurnTo(input) {
+  turn = input;
+  turnDiv.innerText = `${input}'s Turn`;
+}
+
+function checkForWin(CLASS) {
+  if (document.querySelectorAll(".disabled").length === 9) {
+    return displayWinner("Ops, its a DRAW!");
+  }
+  return winningCombinations.some((combination) => {
+    return combination.every((index) => {
+      return moves[index].classList.contains(CLASS);
+    });
+  });
+}
+
+function displayWinner(str, CLASS) {
+  if (CLASS) {
+    let highlight = winningCombinations.find((combination) => {
+      return combination.every((index) => {
+        return moves[index].classList.contains(CLASS);
+      });
+    });
+    for (let i = 0; i < highlight.length; i++) {
+      moves[highlight[i]].classList.add("inverse-move");
+    }
+  }
+  setTimeout(() => {
+    let winnerDiv = document.querySelector(".winner"),
+      winnerText = document.querySelector(".winner p");
+    winnerText.innerText = str;
+    winnerDiv.classList.add("animated", "zoomIn");
+    winnerDiv.style.display = "grid";
+  }, 500);
 }
 
 function filterArray(move) {
