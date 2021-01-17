@@ -88,7 +88,7 @@ function makeChoice() {
         chooseAiMove();
       } else {
         moves[selectedMove].innerText = o;
-        moves[selectedMove].classList.add(o);
+        moves[selectedMove].classList.add(o, "disabled");
       }
     } else if (userMoves.length >= 2) {
       let selectedMove = winningCombinations.find((combination) => {
