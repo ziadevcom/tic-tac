@@ -11,15 +11,22 @@ const winningCombinations = [
   moves = Array.from(document.querySelectorAll(".move")),
   turnDiv = document.querySelector(".turn"),
   board = document.getElementById("board"),
-  x = "X",
-  o = "O",
-  xMoves = [];
+  hide = document.querySelector("#start");
+show = document.querySelector("#started");
+ai = document.querySelector("#singleplayer");
+multiPlayer = document.querySelector("#multiplayer");
+(x = "X"), (o = "O"), (userMoves = []);
 let turn = x,
-  aiMode = false;
+  aiMode = true;
 
 // Event Listeners
 moves.forEach((move) => {
   move.addEventListener("click", makeMove);
+});
+ai.addEventListener("click", showBoard);
+multiPlayer.addEventListener("click", () => {
+  aiMode = false;
+  showBoard();
 });
 
 function makeMove(e) {
@@ -27,7 +34,7 @@ function makeMove(e) {
   if (turn === x) {
     target.innerText = x;
     target.classList.add(x, "disabled");
-    xMoves.push(moves.indexOf(target));
+    userMoves.push(moves.indexOf(target));
     if (checkForWin(x)) {
       displayWinner("PlayerX Won", x);
       return;
@@ -68,75 +75,95 @@ function displayWinner(str, CLASS) {
     moves[highlight[i]].classList.add("inverse-move");
   }
 
-  let winnerDiv = document.querySelector(".winner"),
-    winnerText = document.querySelector(".winner p");
-  winnerText.innerText = str;
-  winnerDiv.classList.add("animated", "zoomIn");
-  winnerDiv.style.display = "grid";
+  setTimeout(() => {
+    let winnerDiv = document.querySelector(".winner"),
+      winnerText = document.querySelector(".winner p");
+    winnerText.innerText = str;
+    winnerDiv.classList.add("animated", "zoomIn");
+    winnerDiv.style.display = "grid";
+  }, 500);
 }
-
-// how will ai work
-/*
-find the combination the user selected
-
-
-*/
 
 function ai(e) {
   board.style.pointerEvents = "none";
-  let userMove = xMoves[xMoves.length - 1];
+  let lastMove = userMoves[userMoves.length - 1];
+  let aiMoves = Array.from(document.querySelectorAll(".O"));
   probably = winningCombinations.filter((combination) => {
     return combination.some((index, i) => {
-      return userMove === combination[i];
+      return lastMove === combination[i];
     });
   });
-  function makeChoice() {
-    let userMoves;
-    if (xMoves.length > 1) {
-      userMoves = [xMoves.length - 2, xMoves.length - 1];
-    } else {
-      userMoves = [...xMoves];
-    }
-    const allPossibleNumbers = probably.reduce((acum, value) => {
-      return acum.concat(
-        value.filter(function (e) {
-          return e !== userMove;
-        })
-      );
-    }, []);
-    console.log(allPossibleNumbers);
-    let aiMove =
-      moves[allPossibleNumbers[random(0, allPossibleNumbers.length - 1)]];
-    console.log("ai move", aiMove);
-
-    if (!aiMove.classList.contains("disabled")) {
-      aiMove.innerText = o;
-      aiMove.classList.add(o);
-    } else if (userMoves.length === 2) {
-      let possibleComb = winningCombinations.find((combination) => {
-        return combination.join("").includes(userMoves.sort().join(""));
-      });
-      let [next, previous] = [possibleComb[2] || aiMove, possibleComb[0]];
-
-      if (userMoves[userMoves.length - 1] === next) {
-        if (!moves[previous].classList.contains("disabled")) {
-          moves[previous].innerText = o;
-          moves[previous].classList.add(o, "disabled");
-        }
-      } else {
-        if (!moves[next].classList.contains("disabled")) {
-          moves[next].innerText = o;
-          moves[next].classList.add(o, "disabled");
-        }
-      }
-    } else {
-      makeChoice();
-    }
-  }
   makeChoice();
   switchTurnTo(x);
   board.style.pointerEvents = "all";
 }
+
+function makeChoice() {
+  let possibleComb = winningCombinations.filter((combination) => {
+    return combination.some((index, i) => {
+      return userMoves[0] === combination[i];
+    });
+  });
+  if (userMoves.length >= 1) {
+    chooseAiMove();
+  } else {
+    chooseAiMove();
+  }
+
+  function chooseAiMove() {
+    if (userMoves.length === 1) {
+      const selectedCombination =
+        possibleComb[random(0, possibleComb.length - 1)];
+      const selectedMove =
+        selectedCombination[random(0, selectedCombination.length - 1)];
+      possibleComb = filterArray(selectedMove);
+      if (moves[selectedMove].classList.contains(x)) {
+        chooseAiMove();
+      } else {
+        moves[selectedMove].innerText = o;
+        moves[selectedMove].classList.add(o);
+      }
+    } else if (userMoves.length >= 2) {
+      // let selectedMove = winningCombinations.find((combination) => {
+      // //   return combination
+      // //     .sort()
+      // //     .join()
+      // //     .includes(userMoves.slice(-2).sort().join(""));
+      // // });
+      let selectedMove = winningCombinations.find((combination) => {
+        return (
+          String(combination.join("")).indexOf(
+            String(userMoves.slice(-2).sort().join(""))
+          ) >= 0
+        );
+      });
+      console.log(selectedMove);
+      if (selectedMove === undefined) {
+      } else {
+        if (moves[selectedMove[2]].classList.contains(x)) {
+          moves[selectedMove[0]].innerText = o;
+          moves[selectedMove[0]].classList.add(o);
+        } else {
+          moves[selectedMove[2]].innerText = o;
+          moves[selectedMove[2]].classList.add(o);
+        }
+      }
+    }
+  }
+}
+
+function filterArray(move) {
+  return winningCombinations.filter((combination) => {
+    return !combination.includes(move);
+  });
+}
+
+function showBoard() {
+  show.classList.add("animated", "zoomIn");
+  show.style.display = "block";
+  hide.style.display = "none";
+}
+
 function random(min, max) {
   return Math.floor(Math.random() * (max - min + 1) + min);
 }

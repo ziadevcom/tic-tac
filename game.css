@@ -21,6 +21,26 @@ body {
   align-items: center;
   font-family: "Fredoka One", cursive;
 }
+#start {
+  width: 100vw;
+  height: 100vh;
+  z-index: 9;
+  display: grid;
+  place-content: center;
+}
+#start div {
+  display: flex;
+  justify-content: center;
+}
+button {
+  padding: 15px 30px;
+  margin: 5px;
+  font-family: inherit;
+  outline: none;
+  border: none;
+  background-color: whites;
+  cursor: pointer;
+}
 .heading,
 .turn {
   color: white;
@@ -29,6 +49,13 @@ body {
 }
 .turn {
   font-size: 20px;
+}
+#started {
+  display: none;
+}
+section#started h1,
+p {
+  text-align: center;
 }
 #board {
   width: 400px;
@@ -56,8 +83,10 @@ body {
   height: 100%;
   background: rgba(0, 0, 1, 0.466);
   place-content: center;
+  top: 0;
+  left: 0;
 }
-button.restart {
+.restart {
   padding: 15px;
   outline: none;
   border: none;
@@ -68,6 +97,7 @@ button.restart {
   font-size: 1rem;
   cursor: pointer;
 }
+button:hover,
 .restart:hover {
   background: black;
   color: white;

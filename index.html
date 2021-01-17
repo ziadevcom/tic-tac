@@ -4,9 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./game.css">
+    <script src="./game.js" defer></script>
     <title>Tic Tac Toe</title>
 </head>
 <body>
+    <div id="start">
+        <h1 class="heading">
+            1P or 2P?
+        </h1>
+        <div>
+            <button id="singleplayer">1P</button>
+            <button id="multiplayer">2P</button>    
+        </div>
+    </div>
+<section id="started">
     <h1 class="heading">
         Tic Tac Toe
     </h1>
@@ -26,6 +37,7 @@
         <p class="heading"></p>
         <button class="restart" onclick="window.location.reload()">Play Again</button>
     </div>
-</body>
+
+</section></body>
 <script src="./game.js"></script>
 </html>
